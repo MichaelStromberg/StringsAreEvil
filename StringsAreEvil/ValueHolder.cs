@@ -16,10 +16,5 @@
             Mileage   = mileage;
             Value     = value;
         }
-
-        public override string ToString()
-        {
-            return ElementId + "," + VehicleId + "," + Term + "," + Mileage + "," + Value;
-        }
     }
 }

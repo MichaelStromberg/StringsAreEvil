@@ -1,7 +1,9 @@
-﻿namespace StringsAreEvil
+﻿using System;
+
+namespace StringsAreEvil
 {
     public interface ILineParser
     {
-        void ParseLine(char[] line);
+        void ParseLine(Span<char> charSpan);
     }
 }
