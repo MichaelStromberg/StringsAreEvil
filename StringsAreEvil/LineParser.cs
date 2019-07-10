@@ -2,9 +2,9 @@
 
 namespace StringsAreEvil
 {
-    public class LineParser : ILineParser
+    public class LineParser
     {
-        public long TotalMileage;
+        public decimal TotalMileage;
 
         private const int MaxCommas    = 7;
         private readonly int[] _commas = new int[MaxCommas];
@@ -27,7 +27,7 @@ namespace StringsAreEvil
         }
 
         private static decimal GetDecimal(ReadOnlySpan<char> charSpan, int commaStart, int commaEnd) =>
-            decimal.Parse(charSpan.Slice(commaStart + 1, commaEnd - commaStart - 1));
+            charSpan.Slice(commaStart + 1, commaEnd - commaStart - 1).OptimizedParseDecimal();
 
         private static int GetInt(ReadOnlySpan<char> charSpan, int commaStart, int commaEnd) =>
             charSpan.Slice(commaStart + 1, commaEnd - commaStart - 1).OptimizedParseInt32();

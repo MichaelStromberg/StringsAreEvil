@@ -7,7 +7,7 @@ namespace StringsAreEvil
     public class LeanStreamReader : IDisposable
     {
         private readonly Stream _stream;
-        private readonly ILineParser _lineParser;
+        private readonly LineParser _lineParser;
 
         private const int MaxBufferSize   = 4096;
         private const byte NewLine        = 0x0a;
@@ -19,15 +19,16 @@ namespace StringsAreEvil
 
         private readonly char[] _charBuffer = new char[MaxBufferSize];
 
-        public LeanStreamReader(Stream stream, ILineParser lineParser)
+        public LeanStreamReader(Stream stream, LineParser lineParser)
         {
             _stream     = stream;
             _lineParser = lineParser;
         }
 
-        private bool FillBuffer()
+        public bool IsEof { get; private set; }
+
+        private void FillBuffer()
         {
-            //Console.WriteLine("FillBuffer");
             int numRemainingBytes = _numBufferBytes - _byteBufferOffset;
 
             if (numRemainingBytes > 0)
@@ -40,16 +41,21 @@ namespace StringsAreEvil
             int numAdditionalBytes = MaxBufferSize - _byteBufferOffset;
 
             int numBytesRead = _stream.Read(_byteBuffer, _byteBufferOffset, numAdditionalBytes);
-            if (numBytesRead == 0) return false;
+
+            if (numBytesRead == 0)
+            {
+                IsEof = true;
+                return;
+            }
 
             _numBufferBytes   = _byteBufferOffset + numBytesRead;
             _byteBufferOffset = 0;
-
-            return true;
         }
 
-        public bool ReadLine()
+        public void ReadLine()
         {
+            if (IsEof) return;
+
             int length;
             int nextPosition;
 
@@ -57,7 +63,9 @@ namespace StringsAreEvil
             {
                 (length, nextPosition) = GetLineLength();
                 if (length != -1) break;
-                if (!FillBuffer()) return false;
+
+                FillBuffer();
+                if (IsEof) return;
             }
 
             Encoding.ASCII.GetChars(_byteBuffer, _byteBufferOffset, length, _charBuffer, 0);
@@ -65,8 +73,6 @@ namespace StringsAreEvil
 
             var span = new Span<char>(_charBuffer, 0, length);
             _lineParser.ParseLine(span);
-
-            return true;
         }
 
         private (int Length, int NextPosition) GetLineLength()

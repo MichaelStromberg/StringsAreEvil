@@ -44,5 +44,50 @@ namespace StringsAreEvil
 
             return number;
         }
+
+        public static decimal OptimizedParseDecimal(this ReadOnlySpan<char> charSpan)
+        {
+            var lo     = 0;
+            int length = charSpan.Length;
+
+            // 2_147_483_647
+            if (length == 0 || charSpan.Length > 11) throw new ArgumentException();
+
+            var pos        = 0;
+            var isNegative = false;
+
+            if (charSpan[pos] == '-')
+            {
+                isNegative = true;
+                pos++;
+            }
+
+            int decimalPos = length - 1;
+
+            while (pos < length)
+            {
+                var ptr = charSpan[pos];
+
+                if (ptr == 46)
+                {
+                    decimalPos = pos;
+                    pos++;
+                    continue;
+                }
+
+                if (ptr < 48 || ptr > 57) throw new ArgumentException();
+
+                checked
+                {
+                    lo *= 10;
+                    lo += ptr - '0';
+                    pos++;
+                }
+            }
+
+            var scale = (byte)(charSpan.Length - decimalPos - 1);
+
+            return new decimal(lo, 0, 0, isNegative, scale);
+        }
     }
 }

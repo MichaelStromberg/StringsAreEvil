@@ -4,11 +4,11 @@ namespace StringsAreEvil
 {
     public static class FileReader
     {
-        public static void Read2(ILineParser lineParser, string filePath)
+        public static void Read2(LineParser lineParser, string filePath)
         {
             using (var reader = new LeanStreamReader(File.OpenRead(filePath), lineParser))
             {
-                while (reader.ReadLine()) {}
+                while (!reader.IsEof) reader.ReadLine();
             }
         }
     }
