@@ -2,7 +2,7 @@
   "profiles": {
     "StringsAreEvil": {
       "commandName": "Project",
-      "commandLineArgs": "e:\\Data\\Nirvana\\StringsAreEvil.txt"
+      "commandLineArgs": "e:\\Data\\Nirvana\\acadia.vcf"
     }
   }
 }
